@@ -1,8 +1,16 @@
 /* eslint-disable react/prop-types */
 
+
+const IconType = {
+  triangle: "triangle",
+  filledCircle: "filledCircle",
+  outlineCircle: "outlineCircle",
+};
+
+
 export const LineChart = ({ data, width = 1200, height = 800, guides = 5, colors = [] }) => {
     // Calculate the maximum value in the data
-    const maxDataValue = Math.max(...data);
+    const maxDataValue =  50;
   
     // Increase padding to accommodate guide numbers
     const padding = 50;
@@ -14,19 +22,27 @@ export const LineChart = ({ data, width = 1200, height = 800, guides = 5, colors
     // Generate the points string for the path
     const points = data.map((value, index) => {
       const x = index * xScale + padding;
-      const y = height - value * yScale - padding;
+      const y = height - value.data * yScale - padding;
       return `${x},${y}`;
     }).join(' ');
   
     // Generate the circles for each data point
-    const circles = data.map((value, index) => {
+    const generateIcon = data.map((value, index) => {
       const cx = index * xScale + padding;
-      const cy = height - value * yScale - padding;
-      return <circle key={`circle-${index}`} cx={cx} cy={cy} r={4} fill="blue" />;
+      const cy = height - value.data * yScale - padding;
+      if(value.icon === IconType.filledCircle){
+        return <circle key={`circle-${index}`} cx={cx} cy={cy} r={4} fill="black" />;
+      }
+      if(value.icon === IconType.outlineCircle){
+        return <circle key={`circle-${index}`} cx={cx} cy={cy} r={4} fill="none" stroke="black" strokeWidth="1"  />;
+      }
+      if(value.icon === IconType.triangle){
+        return <polygon key={`triangle-${index}`} points={`${cx},${cy} ${cx - 4},${cy + 8} ${cx + 4},${cy + 8}`} fill="none" stroke="black" strokeWidth={1} />
+      }
     });
   
     // Generate the vertical grid lines and labels
-    const verticalLines = Array.from({ length: guides }).map((_, index) => {
+    const   verticalLines = Array.from({ length: guides }).map((_, index) => {
       const x = (index + 1) * xScale + padding;
       return (
         <g key={`vertical-line-${index}`}>
@@ -76,32 +92,26 @@ export const LineChart = ({ data, width = 1200, height = 800, guides = 5, colors
       const color = colors[index] || '#f7f7f7'; // Default color if no color specified
       return <rect key={`rect-${index}`} x={padding} y={y} width={width - 2 * padding} height={sectionHeight} fill={color} />;
     });
-  
-    // // Generate the background rectangle for each guide in vertical direction
-    // const verticalRectangles = Array.from({ length: data.length - 1 }).map((_, index) => {
-    //   const x = index * xScale + padding;
-    //   const color = colors[index % colors.length] || '#f7f7f7'; // Cycle through colors if not enough provided
-    //   const rectWidth = xScale - 1; // Adjust width to not cover the guide area
-    //   return <rect key={`vertical-rect-${index}`} x={x} y={padding} width={rectWidth} height={height - 2 * padding} fill={color} />;
-    // });
-  
     // Generate the background rectangle for each guide in horizontal direction
     const horizontalRectangles = Array.from({ length: guides }).map((_, index) => {
       const y = height - (index + 1) * sectionHeight - padding;
       const color = colors[index] || '#f7f7f7'; // Default color if no color specified
       return <rect key={`horizontal-rect-${index}`} x={padding} y={y} width={width - 2 * padding} height={sectionHeight} fill={color} opacity={0.5} />;
     });
-  
+
     return (
       <div>
-        <div style={{display: 'flex'}}><span></span></div>
       <svg width={width} height={height}>
         {/* Draw background rectangles */}
         {rectangles}
         {/* Draw background rectangles for vertical guides */}
         {/* {verticalRectangles} */}
         {[
-            {color:"#ffffff",opacity:0},
+            {color:"#ffffff",opacity:1},
+            {color:"#fcd5be",opacity:1},
+            {color:"#fff9e7",opacity:1},
+            {color:"#e7fcf2",opacity:1},
+            {color:"#ffffff",opacity:1},
             {color:"#fcd5be",opacity:1},
             {color:"#fff9e7",opacity:1},
             {color:"#e7fcf2",opacity:1}
@@ -130,7 +140,7 @@ export const LineChart = ({ data, width = 1200, height = 800, guides = 5, colors
           d={path}
         />
         {/* Draw the circles */}
-        {circles}
+        {generateIcon}
         {/* Draw the x-axis */}
         <line
           x1={padding}
@@ -152,4 +162,3 @@ export const LineChart = ({ data, width = 1200, height = 800, guides = 5, colors
       </svg></div>
     );
   }
-  
